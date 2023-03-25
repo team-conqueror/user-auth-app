@@ -59,7 +59,7 @@ app.post("/login",async (req,res)=>{
         }
 
         if(await bcrypt.compare(password,user.password)){
-            const token = jwt.sign({},jwt_secret);
+            const token = jwt.sign({user: user},jwt_secret);
             if(res.status(201)){
                 return res.json({status:"ok",data:token});
             }
@@ -75,19 +75,18 @@ app.post("/login",async (req,res)=>{
     }
 })
 
-app.post("/userDtl",async (req,res)=>{
-    const token = req.body;
+app.post("/userDtl",(req,res)=>{
+    console.log("hi")
+    const token = req.body.token;
+    console.log(req.body)
     try {
-        const user = await jwt.verify(token,jwt_secret);
-        console.log(user);
-        const usermail = user.email;
-        User.findOne({email:usermail})
-            .then((data) =>{
-                res.send({status:"ok",data:data});
-            })
-            .catch((error) =>{
-                res.send({status:"Error",data:error});
-            })
+        const user = jwt.verify(token,jwt_secret)
+
+          if(user) {
+              res.send({status:"ok",user:user});
+          } else {
+              res.send({status: "Error", data: "User not Found"});
+          }
     }
     catch (error) {}
 })
