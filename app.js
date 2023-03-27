@@ -26,7 +26,6 @@ app.post("/register",async (req,res)=>{
     const {name,uName,password,email,institute,role} = req.body;
     const encryptPassword = await bcrypt.hash(password,10);
     try {
-
         const oldUser = await User.findOne({email})
          if (oldUser){
              return res.send({status:"User already registered! "});
@@ -59,7 +58,7 @@ app.post("/login",async (req,res)=>{
         }
 
         if(await bcrypt.compare(password,user.password)){
-            const token = jwt.sign({user: user},jwt_secret);
+            const token = jwt.sign({user},jwt_secret);
             if(res.status(201)){
                 return res.json({status:"ok",data:token});
             }
@@ -75,18 +74,35 @@ app.post("/login",async (req,res)=>{
     }
 })
 
-app.post("/userDtl",(req,res)=>{
-    console.log("hi")
+app.post("/userDtl",async (req,res)=>{
     const token = req.body.token;
-    console.log(req.body)
     try {
-        const user = jwt.verify(token,jwt_secret)
-
-          if(user) {
-              res.send({status:"ok",user:user});
-          } else {
-              res.send({status: "Error", data: "User not Found"});
-          }
+        const user = await jwt.verify(token,jwt_secret)
+        if(user) {
+            res.send({status:"ok",user:user});
+        } else {
+            res.send({status: "Error", data: "User not Found"});
+        }
     }
     catch (error) {}
+})
+
+app.post("/all",async (req,res)=>{
+    try {
+
+        const user = await User.find({})
+        if (user == null){
+            return res.send({status:"User Not Found"});
+        }
+        else
+        {
+
+            return res.json({status:"ok",data:user});
+        }
+
+    }
+    catch (e) {
+        console.log (e);
+        res.send({status:e});
+    }
 })

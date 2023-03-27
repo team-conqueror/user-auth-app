@@ -6,7 +6,7 @@ const UserDataSchema = new mongoose.Schema(
         usName:String,
         password : String,
         email: {type:String, unique:true},
-        //email: String,
+        institute: String,
         role:String
     },
     {
